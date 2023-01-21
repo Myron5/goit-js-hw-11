@@ -30,3 +30,4 @@ render(url);
 
 Notiflix.Notify.success('Sol lucet omnibus');
 Notiflix.Notify.failure('Qui timide rogat docet negare');
+console.log('xx');
