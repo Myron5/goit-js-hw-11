@@ -38,10 +38,7 @@ const observerOptions = {
 
 const observer = new IntersectionObserver(onLoad, observerOptions);
 
-const lastObserver = new IntersectionObserver(
-  onReachLastObserver,
-  observerOptions
-);
+const lastObserver = new IntersectionObserver(onLastObserver, observerOptions);
 
 function onLoad(entries, observer) {
   entries.forEach(entry => {
@@ -54,7 +51,7 @@ function onLoad(entries, observer) {
   });
 }
 
-function onReachLastObserver(entries, observer) {
+function onLastObserver(entries, observer) {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       Notiflix.Notify.warning(
@@ -72,9 +69,15 @@ const lightbox = new SimpleLightbox('.gallery__link', {
 lightbox.on('show.simplelightbox', e => e.preventDefault());
 lightbox.on('error.simplelightbox', e => console.log(e));
 
-// --------------------------------------------------------- Functions ---------------------------------------------------------
+// ------------------------------------------------------- Evt Listeners -------------------------------------------------------
 
-refs.btn.addEventListener('click', async e => {
+refs.btn.addEventListener('click', onEnterData);
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Enter') onEnterData(e);
+});
+
+async function onEnterData(e) {
   e.preventDefault();
   refs.gallery.innerHTML = '';
   q = refs.input.value.trim();
@@ -85,7 +88,9 @@ refs.btn.addEventListener('click', async e => {
     if (imgsCount)
       Notiflix.Notify.success(`📸 Hooray! We found ${imgsCount} images.`);
   }
-});
+}
+
+// --------------------------------------------------------- Functions ---------------------------------------------------------
 
 async function render(url) {
   try {
