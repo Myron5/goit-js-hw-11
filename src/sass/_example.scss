@@ -1,8 +1,42 @@
 $gallery-width: 1140px;
 $gallery-gap: 12px;
-$imgs-count: 3;
 $timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 $animation-duration: 250ms;
+$hed-color: #7f00ff;
+
+.search-form {
+  padding-top: 15px;
+  padding: 15px;
+  background-color: $hed-color;
+
+  &__box {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+  }
+
+  & input {
+    display: inline-block;
+
+    border: 2px solid #e0e7ea;
+    border-radius: 2px;
+  }
+
+  & button {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+
+    border: 2px solid #e0e7ea;
+    border-radius: 2px;
+    background-color: #fff;
+    background-image: url(../loop.svg);
+    background-size: 20px 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: scaleX(-1);
+  }
+}
 
 /**
    |============================
@@ -10,10 +44,12 @@ $animation-duration: 250ms;
    |============================
  */
 .gallery {
+  margin-top: 40px;
+
   display: grid;
   max-width: $gallery-width;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  grid-auto-rows: 240px;
+  grid-template-columns: repeat(auto-fit, minmax(372px, 1fr));
+  grid-auto-rows: auto;
   grid-gap: $gallery-gap;
   justify-content: center;
   padding: 0;
@@ -21,10 +57,12 @@ $animation-duration: 250ms;
   margin-left: auto;
   margin-right: auto;
 
-  & {
-    position: relative;
+  &__item {
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
       0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    border: 2px solid #e0e7ea;
+    border-radius: 15px;
+    overflow: hidden;
   }
 
   &__link {
@@ -38,22 +76,11 @@ $animation-duration: 250ms;
   }
 
   &__card {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    grid-template-rows: auto auto;
-    grid-column-gap: 0px;
-    grid-row-gap: 0px;
   }
 
   &__thumb {
-    width: calc(
-      (#{$gallery-width} - (#{$imgs-count} - 1) * #{$gallery-gap}) /
-        (#{$imgs-count})
-    );
-    height: calc(
-      (#{$gallery-width} - (#{$imgs-count} - 1) * #{$gallery-gap}) /
-        (#{$imgs-count}) * 9 / 16
-    );
+    width: 372px;
+    height: 210px;
   }
 
   &__image {
@@ -61,7 +88,6 @@ $animation-duration: 250ms;
     height: 100%;
     object-fit: cover;
     transition: transform $animation-duration $timing-function;
-    grid-area: 1 / 1 / 2 / 5;
 
     &:hover {
       transform: scale(1.02);
@@ -70,24 +96,28 @@ $animation-duration: 250ms;
 }
 
 .info {
+  display: flex;
+  justify-content: space-around;
+
+  padding-top: 10px;
+  padding-bottom: 10px;
+
   &__num {
+    display: block;
+    text-align: center;
   }
 
   &__item {
     &--likes {
-      grid-area: 2 / 1 / 3 / 2;
     }
 
     &--views {
-      grid-area: 2 / 2 / 3 / 3;
     }
 
     &--comments {
-      grid-area: 2 / 3 / 3 / 4;
     }
 
     &--downloads {
-      grid-area: 2 / 4 / 3 / 5;
     }
   }
 }
