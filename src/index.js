@@ -5,7 +5,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const BASE_URL = 'https://pixabay.com/api';
 
-let imgs_count = -1;
+let imgIdx = 1;
 let page = 1;
 let q = '';
 
@@ -17,7 +17,7 @@ const refs = {
   guard: document.querySelector('.js-guard'),
   refreshGuard(observer) {
     this.guard = document.querySelector('.js-guard');
-    observer.observe(this.guard);
+    if (this.guard) observer.observe(this.guard);
   },
 };
 
@@ -26,17 +26,22 @@ const URLparams = new URLSearchParams({
   image_type: 'photo',
   orientation: 'horizontal',
   safesearch: true,
+  per_page: 40,
 });
 
 const observerOptions = {
   root: null,
   rootMargin: '120px',
   threshold: 0,
-  per_page: 40,
 };
 // --------------------------------------------------------- Observer ---------------------------------------------------------
 
 const observer = new IntersectionObserver(onLoad, observerOptions);
+
+const lastObserver = new IntersectionObserver(
+  onReachLastObserver,
+  observerOptions
+);
 
 function onLoad(entries, observer) {
   entries.forEach(entry => {
@@ -45,6 +50,16 @@ function onLoad(entries, observer) {
       page += 1;
       const url = `${BASE_URL}?${URLparams}&q=${q}&page=${page}`;
       render(url);
+    }
+  });
+}
+
+function onReachLastObserver(entries, observer) {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      Notiflix.Notify.warning(
+        "🔚 We're sorry, but you've reached the end of search results."
+      );
     }
   });
 }
@@ -59,27 +74,42 @@ lightbox.on('error.simplelightbox', e => console.log(e));
 
 // --------------------------------------------------------- Functions ---------------------------------------------------------
 
-refs.btn.addEventListener('click', e => {
+refs.btn.addEventListener('click', async e => {
   e.preventDefault();
   refs.gallery.innerHTML = '';
   q = refs.input.value.trim();
   const url = `${BASE_URL}?${URLparams}&q=${q}`;
   if (q) {
-    render(url);
+    const imgsCount = await render(url);
     smoothScroll();
+    if (imgsCount)
+      Notiflix.Notify.success(`📸 Hooray! We found ${imgsCount} images.`);
   }
 });
 
 async function render(url) {
   try {
-    const { hits: imgs } = await getCurrency(url);
-    if (imgs.length == 0) throw new Error('💔 Nothing was found');
-    const markup = createMarkup(imgs);
+    const data = await getCurrency(url);
+    const { hits: imgs, total: imgsCount } = data;
+    const isEnd = imgIdx + 40 >= imgsCount;
+
+    if (!imgsCount)
+      throw new Error(
+        '💔 Sorry, there are no images matching your search query. Please try again.'
+      );
+
+    const markup = createMarkup(imgs, isEnd);
     refs.gallery.insertAdjacentHTML('beforeend', markup);
+
+    if (isEnd) lastObserver.observe(document.querySelector('.js-last-guard'));
+
     refs.refreshGuard(observer);
     lightbox.refresh();
+
+    return imgsCount;
   } catch (err) {
     Notiflix.Notify.failure(err.message);
+    console.log(err.message);
   }
 }
 
@@ -89,14 +119,13 @@ async function getCurrency(url) {
   return data;
 }
 
-function createMarkup(imgs) {
-  return imgs
-    .map(img => {
-      imgs_count += 1;
-      return `
+function createMarkup(imgs, isEnd) {
+  let markup = '';
+  imgs.map(img => {
+    markup += `
         <li class="gallery__item">
           <a class="gallery__link" href="${img.largeImageURL}">
-            <div class="gallery__card" js-idx="${imgs_count}">
+            <div class="gallery__card" js-idx="${imgIdx}">
               <div class="gallery__thumb">
                   <img
                     class="gallery__image"
@@ -135,9 +164,12 @@ function createMarkup(imgs) {
             </div>
           </a>
         </li>`;
-    })
-    .concat('<div class="js-guard"></div>')
-    .join('');
+    imgIdx += 1;
+  });
+  if (!isEnd) markup += '<div class="js-guard"></div>';
+  else markup += '<div class="js-last-guard"></div>';
+
+  return markup;
 }
 
 function smoothScroll() {
