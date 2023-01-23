@@ -82,6 +82,7 @@ async function onEnterData(e) {
   refs.gallery.innerHTML = '';
   q = refs.input.value.trim();
   const url = `${BASE_URL}?${URLparams}&q=${q}`;
+
   if (q) {
     const imgsCount = await render(url);
     smoothScroll();
