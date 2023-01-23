@@ -1,7 +1,7 @@
 import Notiflix from 'notiflix';
-import axios from 'axios';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import getCurrency from './api-imgs';
 
 const BASE_URL = 'https://pixabay.com/api';
 
@@ -117,12 +117,6 @@ async function render(url) {
     Notiflix.Notify.failure(err.message);
     console.log(err.message);
   }
-}
-
-async function getCurrency(url) {
-  const promise = await axios.get(url);
-  const { data } = promise;
-  return data;
 }
 
 function createMarkup(imgs, isEnd) {
